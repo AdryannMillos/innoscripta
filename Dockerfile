@@ -1,42 +1,48 @@
-FROM php:8.1-fpm
-
-# set your user name, ex: user=bernardo
-ARG user=carlos
-ARG uid=1000
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    curl \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    zip \
-    unzip
-
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd sockets
-
-# Get latest Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Create system user to run Composer and Artisan Commands
-RUN useradd -G www-data,root -u $uid -d /home/$user $user
-RUN mkdir -p /home/$user/.composer && \
-    chown -R $user:$user /home/$user
-
-# Install redis
-RUN pecl install -o -f redis \
-    &&  rm -rf /tmp/pear \
-    &&  docker-php-ext-enable redis
+# Use the official PHP image with version 8.2 as the base image
+FROM php:8.2-fpm
 
 # Set working directory
-WORKDIR /var/www
+WORKDIR /var/www/html
 
-# Copy custom configurations PHP
-COPY docker/php/custom.ini /usr/local/etc/php/conf.d/custom.ini
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    unzip \
+    cron \
+    && docker-php-ext-install zip pdo pdo_mysql
 
-USER $user
+# Install Composer globally
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Copy the composer.json and composer.lock
+COPY composer.json composer.lock ./
+
+# Install Laravel dependencies
+RUN composer install --no-scripts --no-dev --no-autoloader && rm -rf /root/.composer
+
+# Copy the rest of the application code
+COPY . .
+
+# Generate the autoload files and optimize Composer autoloader
+RUN composer dump-autoload --no-scripts --no-dev --optimize
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+# Copy the crontab file into the container
+COPY ./crontab /etc/cron.d/laravel-scheduler
+
+# Give execution rights to the cron job
+RUN chmod 0644 /etc/cron.d/laravel-scheduler
+
+# Apply cron job
+RUN crontab /etc/cron.d/laravel-scheduler
+
+# Create the log file to be able to run tail
+RUN touch /var/log/cron.log
+
+# Expose port 8989
+EXPOSE 8989
+
+# Run both cron and php-fpm
+CMD ["sh", "-c", "cron && php-fpm"]

@@ -28,37 +28,37 @@ services:
             - laravel
 
     # db mysql
-    db:
+    db-inno:
         image: mysql:5.7.22
         restart: unless-stopped
         environment:
-            MYSQL_DATABASE: ${DB_DATABASE:-laravel}
-            MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
-            MYSQL_PASSWORD: ${DB_PASSWORD:-userpass}
-            MYSQL_USER: ${DB_USERNAME:-username}
+            MYSQL_DATABASE: '${DB_DATABASE}'
+            MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_PASSWORD: '${DB_PASSWORD}'
+            MYSQL_USER: '${DB_USERNAME}'
         volumes:
             - ./.docker/mysql/dbdata:/var/lib/mysql
         ports:
-            - "3388:3306"
+            - "3308:3306"
         networks:
             - laravel
 
-    # queue
-    queue:
-        image: especializati/laravel9-app
-        restart: unless-stopped
-        command: "php artisan queue:work"
-        volumes:
-            - ./:/var/www
-        depends_on:
-            - redis
-            - app
-        networks:
-            - laravel
 
     # redis
     redis:
         image: redis:latest
+        networks:
+            - laravel
+
+     # cron
+    cron:
+        build:
+            context: .
+            dockerfile: cron.dockerfile
+        container_name: cron
+        restart: unless-stopped
+        volumes:
+            - ./:/var/www
         networks:
             - laravel
 
