@@ -7,7 +7,7 @@ use App\Interfaces\Users\AuthServiceInterface;
 use App\Services\News\NewsService;
 use App\Interfaces\Users\UserRepositoryInterface;
 use App\Interfaces\Users\UserServiceInterface;
-use App\Repositories\Users\AuthService;
+use App\Services\Users\AuthService;
 use App\Services\Users\UserService;
 use App\Repositories\Users\UserRepository;
 use Illuminate\Support\ServiceProvider;

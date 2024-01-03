@@ -18,16 +18,6 @@ class UserService implements UserServiceInterface
 
     public function create(array $data)
     {
-        $findEmail = $this->userService->find($data['email'], 'email');
-
-        if ($findEmail) {
-            throw new Exception('Email already in use!', 401);
-        }
-
-        if ($data['password'] != $data['confirmPassword']) {
-            throw new Exception('Password and confirm password must match', 401);
-        }
-
         $data['password'] = bcrypt($data['password']);
 
         return $this->userService->store($data);
