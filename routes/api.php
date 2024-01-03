@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\News\NewsController;
+use App\Http\Controllers\Users\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Users\UsersController;
@@ -16,4 +17,5 @@ Route::group(['prefix' => 'news'], function () {
 
 Route::group(['prefix' => 'users'], function () {
     Route::post('/', [UsersController::class, 'store']);
+    Route::post('/login', [AuthController::class, 'login']);
 });
