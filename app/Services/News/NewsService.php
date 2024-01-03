@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Http;
 
 class NewsService implements NewsServiceInterface
 {
-    public function saveNewsFromApi($sourceKey)
+    public function saveNewsFromApi(string $sourceKey)
     {
         try {
             switch ($sourceKey) {

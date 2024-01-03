@@ -4,5 +4,5 @@ namespace App\Interfaces\News;
 
 interface NewsServiceInterface
 {
-    public function saveNewsFromApi($sourceKey);
+    public function saveNewsFromApi(string $sourceKey);
 }

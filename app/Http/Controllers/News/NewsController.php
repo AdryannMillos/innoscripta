@@ -17,9 +17,9 @@ class NewsController extends Controller
     public function store()
     {
         try {
-            // $this->newsService->saveNewsFromApi('NewsApi');
+            $this->newsService->saveNewsFromApi('NewsApi');
 
-            // $this->newsService->saveNewsFromApi('NewYorkTimes');
+            $this->newsService->saveNewsFromApi('NewYorkTimes');
 
             $this->newsService->saveNewsFromApi('TheGuardian');
 
