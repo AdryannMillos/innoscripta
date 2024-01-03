@@ -4,28 +4,29 @@ namespace App\Services\Users;
 
 use App\Interfaces\Users\UserServiceInterface;
 use App\Interfaces\Users\UserRepositoryInterface;
+use App\Models\User;
 use Exception;
 
 class UserService implements UserServiceInterface
 {
-    protected $userService;
+    protected $userRepositoryInterface;
 
     public function __construct(
-        UserRepositoryInterface $userService
+        UserRepositoryInterface $userRepositoryInterface
     ) {
-        $this->userService = $userService;
+        $this->userRepositoryInterface = $userRepositoryInterface;
     }
 
     public function create(array $data)
     {
         $data['password'] = bcrypt($data['password']);
 
-        return $this->userService->store($data);
+        return $this->userRepositoryInterface->store($data);
     }
 
     public function validateUserCreation(array $data)
     {
-        $findEmail = $this->userService->find($data['email'], 'email');
+        $findEmail = $this->userRepositoryInterface->find($data['email'], 'email');
 
         if ($findEmail) {
             return [
@@ -45,5 +46,15 @@ class UserService implements UserServiceInterface
             'canUserBeCreated' => true,
             'message' => 'User can be created'
         ];
+    }
+
+    public function findById(int $id)
+    {
+        return $this->userRepositoryInterface->findByID($id);
+    }
+
+    public function updateUser(User $user, int $id, array $data)
+    {
+        return $this->userRepositoryInterface->update($user, $id, $data);
     }
 }

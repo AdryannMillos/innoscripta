@@ -19,5 +19,26 @@ class UserRepository implements UserRepositoryInterface
         $user->password = $data['password'];
 
         $user->save();
+
+        $user->preferences()->create();
+    }
+
+    public function findByID(int $id)
+    {
+        return User::find($id)->load('preferences');
+    }
+
+    public function update(User $user, int $id, array $data)
+    {
+
+        $user['name'] = $data['name'];
+        $user['email'] = $data['email'];
+        $user['password'] = $data['password'];
+
+        $user->preferences()->update($data['preferences']);
+
+        $user->save();
+
+        return $user;
     }
 }

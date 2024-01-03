@@ -18,4 +18,7 @@ Route::group(['prefix' => 'news'], function () {
 Route::group(['prefix' => 'users'], function () {
     Route::post('/', [UsersController::class, 'store']);
     Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/{id}', [UsersController::class, 'show']);
+    Route::put('/{id}', [UsersController::class, 'update']);
+
 });

@@ -116,4 +116,42 @@ class UserServiceTest extends TestCase
         $this->assertFalse($result['canUserBeCreated']);
         $this->assertEquals('Password and confirm password must match', $result['message']);
     }
+
+    public function testFindUserByID()
+    {
+        $userId = 1;
+        $userMock = new User(['id' => $userId]);
+
+        $this->userRepositoryInterface
+            ->shouldReceive('findByID')
+            ->with($userId)
+            ->andReturn($userMock);
+
+        $userService = new UserService($this->userRepositoryInterface);
+
+        $result = $userService->findById($userId);
+        $this->assertInstanceOf(User::class, $result);
+    }
+
+    public function testUpdateUser()
+    {
+        $userId = 1;
+        $userData = [
+            'name' => 'John Doe',
+            'email' => 'john@example.com',
+            'password' => 'newpassword',
+        ];
+
+        $userMock = new User(['id' => $userId]);
+
+        $this->userRepositoryInterface
+            ->shouldReceive('update')
+            ->with($userMock, $userId, $userData)
+            ->andReturn($userMock);
+        $userService = new UserService($this->userRepositoryInterface);
+
+        $result = $userService->updateUser($userMock, $userId, $userData);
+
+        $this->assertInstanceOf(User::class, $result);
+    }
 }
