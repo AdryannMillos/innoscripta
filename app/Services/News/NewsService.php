@@ -144,7 +144,7 @@ class NewsService implements NewsServiceInterface
             if ($article['webUrl'] === 'https://removed.com' || !isset($article['webUrl'])) continue;
 
             $this->saveArticleToDatabase(
-                isset($article['fields']['byline']) ?$article['fields']['byline'] : null,
+                isset($article['fields']['byline']) ? $article['fields']['byline'] : null,
                 $article['webTitle'],
                 $article['fields']['headline'],
                 $article['webUrl'],
@@ -172,6 +172,51 @@ class NewsService implements NewsServiceInterface
                 'content' => $content,
                 'source' => $source,
             ]);
+        }
+    }
+
+    public function getNews(string $search = null, string $author = null, string $source = null, string $fromDate = null, string $toDate = null, int $pageSize = 10, int $page = 1)
+    {
+        try {
+            $news = News::query();
+
+            if ($search) {
+                $news->where('title', 'like', "%{$search}%");
+            }
+
+            if ($author) {
+                $news->where('author', 'like', "%{$author}%");
+            }
+
+            if ($source) {
+                $news->where('source', 'like', "%{$source}%");
+            }
+
+            if ($fromDate) {
+                $news->where('published_at', '>=', Carbon::parse($fromDate)->format('Y-m-d'));
+            }
+
+            if ($toDate) {
+                $news->where('published_at', '<=', Carbon::parse($toDate)->format('Y-m-d'));
+            }
+
+            $news->orderBy('published_at', 'desc');
+
+            $paginator = $news->paginate($pageSize, ['*'], 'page', $page);
+
+            $content = $paginator->items();
+            $totalResults = $paginator->total();
+            $currentPage = $paginator->currentPage();
+            $totalPages = $paginator->lastPage();
+
+            return [
+                'contentSize' => $totalResults,
+                'currentPage' => $currentPage,
+                'totalPages' => $totalPages,
+                'articles' => $content,
+            ];
+        } catch (\Exception $e) {
+            throw new \Exception($e->getMessage());
         }
     }
 }

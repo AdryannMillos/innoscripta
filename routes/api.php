@@ -11,14 +11,17 @@ Route::get('/', function () {
 });
 
 Route::group(['prefix' => 'news'], function () {
-    Route::get('/',  [NewsController::class, 'index']);
+    Route::middleware(['apiJwt'])->group(function () {
+        Route::get('/', [NewsController::class, 'index']);
+    });
     Route::post('/', [NewsController::class, 'store']);
 });
 
 Route::group(['prefix' => 'users'], function () {
     Route::post('/', [UsersController::class, 'store']);
-    Route::post('/login', [AuthController::class, 'login']);
-    Route::get('/{id}', [UsersController::class, 'show']);
-    Route::put('/{id}', [UsersController::class, 'update']);
-
+    Route::post('/login',  [AuthController::class, 'login']);
+    Route::middleware(['apiJwt'])->group(function () {
+        Route::get('/{id}', [UsersController::class, 'show']);
+        Route::put('/{id}', [UsersController::class, 'update']);
+    });
 });

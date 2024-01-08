@@ -3,6 +3,7 @@
 namespace App\Repositories\Users;
 
 use App\Interfaces\Users\UserRepositoryInterface;
+use App\Models\Preference;
 use App\Models\User;
 
 class UserRepository implements UserRepositoryInterface
@@ -30,14 +31,12 @@ class UserRepository implements UserRepositoryInterface
 
     public function update(User $user, int $id, array $data)
     {
-
-        $user['name'] = $data['name'];
-        $user['email'] = $data['email'];
-        $user['password'] = $data['password'];
+        $user->update([
+            'name' => $data['name'],
+            'email' => $data['email'],
+        ]);
 
         $user->preferences()->update($data['preferences']);
-
-        $user->save();
 
         return $user;
     }
